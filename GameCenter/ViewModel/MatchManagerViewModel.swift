@@ -4,6 +4,9 @@
 //
 //  Created by Vinicius Marques on 11/02/26.
 //
+
+//Arquivo de conexão utilizado no jogo: Próxima-Estação
+
 import SwiftUI
 import Foundation
 internal import Combine
@@ -15,6 +18,24 @@ import GameplayKit
 
 @MainActor
 class MatchManagerViewModel: NSObject, ObservableObject, GKMatchmakerViewControllerDelegate{
+    
+    @Published var inGame = false
+    @Published var isGameOver = false
+    @Published var authenticationState = PlayerAuthState.authenticating
+    @Published var score = 0
+    @Published var remainingTime = maxTimeRemaining
+    @Published var lastReceived = ""
+    @Published var pastGuesses = ["",""]
+    
+    var match: GKMatch?
+    var localPlayer = GKLocalPlayer.local
+    var otherPlayer: GKPlayer?
+    var playerUUIDKey = UUID().uuidString
+    
+    var rootViewController: UIViewController?{
+        let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+        return windowScene?.windows.first?.rootViewController
+    }
 
     static let shared = MatchManagerViewModel()
 
@@ -27,11 +48,6 @@ class MatchManagerViewModel: NSObject, ObservableObject, GKMatchmakerViewControl
     
     func receiveIDsList(id: String){
         playersIdList.append(id)
-//        print(playersIdList)
-//        print(playersIdList.count)
-//        print(match!.players.count)
-//        print("MatchManager:", ObjectIdentifier(self))
-//        print(playersIdList)
         if playersIdList.count == match!.players.count{
             menu = true
         }
@@ -44,14 +60,8 @@ class MatchManagerViewModel: NSObject, ObservableObject, GKMatchmakerViewControl
         
         switch messagePrefix{
         case "began":
-//            if playerUUIDKey == parameter{
-//                playerUUIDKey = UUID().uuidString
-//                SendString("began:\(playerUUIDKey)")
-//                break
-//            }
-//            print("iOS recebeu um id \(parameter)")
+            
             #if os(tvOS)
-//            print("tv os recebeu um id \(parameter)")
             receiveIDsList(id: parameter)
             #endif
             
@@ -60,15 +70,15 @@ class MatchManagerViewModel: NSObject, ObservableObject, GKMatchmakerViewControl
             
             #if os(tvOS)
             let parameterSplit = parameter.split(separator: "!")
-            print("\(parameterSplit)")
+            
             let playerId = parameterSplit[0]
             guard let positionX = Double(parameterSplit[1]) else { return }
             guard let positionY = Double(parameterSplit[2]) else { return }
-//            print("Estou recebendo do player \(playerId) as cordenadas x \(positionX) e as coordenadas \(positionY)")
+
             SceneManager.shared.currentScene.receiveInput(player: String(playerId), input: CGPoint(x: positionX, y: positionY))
             return
             #endif
-//            print("eu recebi a tv nao sei?")
+
             return
         default:
             break
@@ -78,7 +88,7 @@ class MatchManagerViewModel: NSObject, ObservableObject, GKMatchmakerViewControl
     func startGame(newMatch: GKMatch){
         self.match = newMatch
         self.match?.delegate = self
-//        print(match?.players.count)
+
         otherPlayer = match?.players.first
         SendString("began:\(playerUUIDKey)")
     }
@@ -105,26 +115,6 @@ class MatchManagerViewModel: NSObject, ObservableObject, GKMatchmakerViewControl
         rootViewController?.present(matchMakingVC!, animated: true)
     }
     
-    
-    @Published var inGame = false
-    @Published var isGameOver = false
-    @Published var authenticationState = PlayerAuthState.authenticating
-    @Published var score = 0
-    @Published var remainingTime = maxTimeRemaining
-    @Published var lastReceived = ""
-    @Published var pastGuesses = ["",""]
-//    @Published var players: [String : Player] = [:]
-//    @Published var  ids: [String] = []
-    var match: GKMatch?
-    var localPlayer = GKLocalPlayer.local
-    var otherPlayer: GKPlayer?
-    var playerUUIDKey = UUID().uuidString
-    
-    var rootViewController: UIViewController?{
-        let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
-        return windowScene?.windows.first?.rootViewController
-    }
-    
     func authenticateUser(){
         GKLocalPlayer.local.authenticateHandler = { [self] vc, e in
             if let viewController = vc{
@@ -134,8 +124,6 @@ class MatchManagerViewModel: NSObject, ObservableObject, GKMatchmakerViewControl
             
             if let error = e{
                 authenticationState = .error
-//                print(error.localizedDescription)
-                
                 return
             }
             if localPlayer.isAuthenticated{
@@ -148,18 +136,6 @@ class MatchManagerViewModel: NSObject, ObservableObject, GKMatchmakerViewControl
                 authenticationState = .unauthenticated
             }
         }
-        
-        
-        
-        
-        //extention matchmakerViewControllerDelegate
-        
-        
-        
-        //extention matchmakerMatchDelegate
-        
-        //
-        
     }
 }
 
@@ -176,14 +152,13 @@ extension MatchManagerViewModel: GKMatchDelegate{
             do{
                 lastReceived = content
             }catch{
-//                print(error)
+
             }
             
         }
     }
     
     func SendString(_ message: String){
-//        print("manndo string essa aqui: \(message)")
         guard let enconded = "strData:\(message)".data(using: .utf8) else {return}
         sendData(enconded, mode: .reliable)
     }
@@ -192,7 +167,6 @@ extension MatchManagerViewModel: GKMatchDelegate{
         do{
             try match?.sendData(toAllPlayers: data, with: mode)
         }catch{
-//            print(error)
         }
     }
     
