@@ -95,3 +95,11 @@ func receiveIDsList(id: String){
 [Narebatalha](https://github.com/PedroTessaro/SlingFighters)
 
 [Próxima Estação](https://github.com/hyauss/ProjectAraraAzul)
+
+## Autores
+
+Enzo Ferroni
+
+Pedro Tessaro
+
+Vinicius Marques
