@@ -61,11 +61,30 @@ The two games compared:
 
 ## Team
 
-| Name | GitHub |
-| --- | --- |
-| Enzo Ferroni | [@EnzoFerroni](https://github.com/EnzoFerroni) |
-| Pedro Tessaro | [@PedroTessaro](https://github.com/PedroTessaro) |
-| Vinicius Marques | [@hyauss](https://github.com/hyauss) |
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" width="33%">
+        <a href="https://github.com/EnzoFerroni"><img src="https://github.com/EnzoFerroni.png" width="90" alt="Enzo Ferroni"/></a>
+        <br/><sub><b>Enzo Ferroni</b></sub><br/><br/>
+        <a href="https://github.com/EnzoFerroni"><img src="https://skillicons.dev/icons?i=github" alt="GitHub"/></a>
+        <a href="https://www.linkedin.com/in/enzoferroni/"><img src="https://skillicons.dev/icons?i=linkedin" alt="LinkedIn"/></a>
+      </td>
+      <td align="center" width="33%">
+        <a href="https://github.com/PedroTessaro"><img src="https://github.com/PedroTessaro.png" width="90" alt="Pedro Tessaro"/></a>
+        <br/><sub><b>Pedro Tessaro</b></sub><br/><br/>
+        <a href="https://github.com/PedroTessaro"><img src="https://skillicons.dev/icons?i=github" alt="GitHub"/></a>
+        <a href="https://www.linkedin.com/in/pedrotessaro/"><img src="https://skillicons.dev/icons?i=linkedin" alt="LinkedIn"/></a>
+      </td>
+      <td align="center" width="33%">
+        <a href="https://github.com/hyauss"><img src="https://github.com/hyauss.png" width="90" alt="Vinicius Marques"/></a>
+        <br/><sub><b>Vinicius Marques</b></sub><br/><br/>
+        <a href="https://github.com/hyauss"><img src="https://skillicons.dev/icons?i=github" alt="GitHub"/></a>
+        <a href="https://www.linkedin.com/in/vinicius-marques-966918274/"><img src="https://skillicons.dev/icons?i=linkedin" alt="LinkedIn"/></a>
+      </td>
+    </tr>
+  </table>
+</div>
 
 ## License
 
