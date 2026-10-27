@@ -1,105 +1,73 @@
-# Comparando Eficiência e Persnalização de Funções de Pareamento em Swift no Contexto de Jogos (Game Center x Network)
+# BridgeConexao
 
-![Plataformas]( https://img.shields.io/badge/Platformas-iOS%20|%20tvOS-blue?logo=swift)
+[![iOS | tvOS](https://img.shields.io/badge/iOS%20%7C%20tvOS-000000?logo=apple)](https://developer.apple.com/)
+[![Swift](https://img.shields.io/badge/Swift-5-F05138?logo=swift&logoColor=white)](https://swift.org)
+[![GameKit](https://img.shields.io/badge/GameKit-Game%20Center-34C759)](https://developer.apple.com/documentation/gamekit)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-No Challenge passado, dois tipos de conexão foram utilizados em projetos diferentes. Vamos comparar a dificuldade de aplicação e adaptação de cada um, além de analisar o número de packet traces.
+A short study comparing Game Center (GameKit) and a custom network layer for real-time iPhone-to-Apple TV multiplayer in Swift.
 
-## Funções Utilizadas
+## Table of Contents
 
-### Essa função é resposável por mandar os pacotes para o servidor
+- [About](#about)
+- [Game Center Implementation](#game-center-implementation)
+- [Packet Traffic Comparison](#packet-traffic-comparison)
+- [Reference Projects](#reference-projects)
+- [Team](#team)
+- [License](#license)
+
+## About
+
+In a previous Apple Developer Academy challenge, two teams built party games where
+iPhones act as controllers for a game running on Apple TV. One used **Game Center**
+matchmaking, the other a **custom network connection**. This repository compares both
+approaches on two axes: how hard each one is to implement and adapt, and how much
+packet traffic each one generates.
+
+## Game Center Implementation
+
+The Game Center side lives in
+[`GameCenter/ViewModel/MatchManagerViewModel.swift`](GameCenter/ViewModel/MatchManagerViewModel.swift).
+Messages are plain strings with a command prefix, sent through `GKMatch`
+(simplified excerpt):
+
 ```swift
-extension MatchManagerViewModel: GKMatchDelegate{
-    
-    func match(_ match: GKMatch, didReceive data: Data, fromRemotePlayer player: GKPlayer) {
-        let content = String(decoding: data, as: UTF8.self)
-        
-        if content.starts(with: "strData:"){
-            let message = content.replacing("strData:", with: "")
-            receivedString(message)
-        }else{
-            do{
-                lastReceived = content
-            }catch{
+func sendString(_ message: String) {
+    guard let encoded = "strData:\(message)".data(using: .utf8) else { return }
+    sendData(encoded, mode: .reliable)
+}
 
-            }
-            
-        }
-    }
-    
-    func SendString(_ message: String){
-        guard let enconded = "strData:\(message)".data(using: .utf8) else {return}
-        sendData(enconded, mode: .reliable)
-    }
-    
-    func sendData(_ data: Data, mode: GKMatch.SendDataMode){
-        do{
-            try match?.sendData(toAllPlayers: data, with: mode)
-        }catch{
-        }
-    }
-    
+func sendData(_ data: Data, mode: GKMatch.SendDataMode) {
+    try? match?.sendData(toAllPlayers: data, with: mode)
+}
 ```
 
-### Essa função é resposável por receber os pacotes do servidor
-```swift
-func receiveIDsList(id: String){
-        playersIdList.append(id)
-        if playersIdList.count == match!.players.count{
-            menu = true
-        }
-    }
-    
-    func receivedString(_ message: String){
-        let messageSplit = message.split(separator: ":")
-        guard let messagePrefix = messageSplit.first else{ return }
-        let parameter = String (messageSplit.last ?? "")
-        
-        switch messagePrefix{
-        case "began":
-            
-            #if os(tvOS)
-            receiveIDsList(id: parameter)
-            #endif
-            
-            inGame = true
-        case"position":
-            
-            #if os(tvOS)
-            let parameterSplit = parameter.split(separator: "!")
-            
-            let playerId = parameterSplit[0]
-            guard let positionX = Double(parameterSplit[1]) else { return }
-            guard let positionY = Double(parameterSplit[2]) else { return }
+On tvOS, incoming commands such as `position` are parsed and forwarded to the current
+scene, so each iPhone moves its own player on the TV.
 
-            SceneManager.shared.currentScene.receiveInput(player: String(playerId), input: CGPoint(x: positionX, y: positionY))
-            return
-            #endif
+## Packet Traffic Comparison
 
-            return
-        default:
-            break
-        }
-    }
-```
+Packet traces captured during gameplay:
 
-**Onde está implementado:** `GameCenter/ViewModel/MatchManagerViewModel.swift`
+<img width="100%" alt="Packet trace comparison" src="https://github.com/user-attachments/assets/96eab7a0-a58f-4976-8f5b-016b2b2999ed" />
+<img width="100%" alt="Packet trace detail" src="https://github.com/user-attachments/assets/c478f00b-2ee9-4ce8-b435-2a7651b88b9a" />
 
-# Comparação de trafégo de pacotes
+## Reference Projects
 
-<img width="2648" height="1562" alt="Imagem 09-03-2026 às 17 46" src="https://github.com/user-attachments/assets/96eab7a0-a58f-4976-8f5b-016b2b2999ed" />
-<img width="2544" height="853" alt="Image 09-03-26 at 17 48" src="https://github.com/user-attachments/assets/c478f00b-2ee9-4ce8-b435-2a7651b88b9a" />
+The two games compared:
 
+- [SlingFighters](https://github.com/PedroTessaro/SlingFighters) (Narebatalha)
+- [ProjectAraraAzul](https://github.com/hyauss/ProjectAraraAzul) (Próxima Estação)
 
-## Repositórios de Referência 
+## Team
 
-[Narebatalha](https://github.com/PedroTessaro/SlingFighters)
+| Name | GitHub |
+| --- | --- |
+| Enzo Ferroni | [@EnzoFerroni](https://github.com/EnzoFerroni) |
+| Pedro Tessaro | [@PedroTessaro](https://github.com/PedroTessaro) |
+| Vinicius Marques | [@hyauss](https://github.com/hyauss) |
 
-[Próxima Estação](https://github.com/hyauss/ProjectAraraAzul)
+## License
 
-## Autores
-
-Enzo Ferroni
-
-Pedro Tessaro
-
-Vinicius Marques
+Released under the [MIT License](LICENSE). Copyright (c) 2026 Enzo Ferroni, Pedro
+Tessaro and Vinicius Marques.
